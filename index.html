@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AutoHeal">
+<meta name="theme-color" content="#134f8a">
+<link rel="manifest" href="manifest.json">
+<title>AutoHeal Bandage Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky:#e8f4fd;--sky2:#d0e9f8;--white:#ffffff;
+  --blue:#2176c7;--blue-deep:#134f8a;--blue-soft:#5aa0d8;
+  --teal:#27b5c2;--green:#28bf82;--amber:#f0a500;--red:#e84545;
+  --text:#152840;--muted:#7a9ab8;
+  --card-border:rgba(33,118,199,0.13);
+  --shadow-sm:0 2px 12px rgba(20,60,120,0.08);
+  --shadow-md:0 6px 28px rgba(20,60,120,0.12);
+  --shadow-lg:0 16px 48px rgba(20,60,120,0.16);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;height:100%;}
+body{
+  font-family:'Nunito',sans-serif;
+  background:#eef5fc;
+  color:var(--text);
+  min-height:100%;
+  min-height:100dvh;
+  overflow-x:hidden;
+}
+
+/* BG */
+.bg-wrap{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(160deg,#e0eefa 0%,#eef5fc 50%,#d8f0f5 100%);}
+.bg-circle{position:absolute;border-radius:50%;opacity:0.18;animation:bgfloat 18s ease-in-out infinite alternate;}
+.bg-circle.a{width:360px;height:360px;background:var(--blue-soft);top:-120px;left:-100px;animation-delay:0s;}
+.bg-circle.b{width:280px;height:280px;background:var(--teal);bottom:-80px;right:-80px;animation-delay:-6s;}
+.bg-circle.c{width:180px;height:180px;background:var(--blue);top:40%;right:-40px;animation-delay:-11s;}
+@keyframes bgfloat{from{transform:translate(0,0) scale(1)}to{transform:translate(14px,10px) scale(1.04)}}
+
+.page-wrap{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100dvh;}
+
+/* ── TOP NAV ── */
+.topnav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(33,118,199,0.12);
+  padding-top:var(--safe-top);
+}
+.topnav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;height:54px;
+}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+
+/* BLUE CROSS ICON — nav */
+.cross-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--blue),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 10px rgba(33,118,199,0.35);flex-shrink:0;
+}
+.cross-icon svg{width:20px;height:20px;}
+
+.brand-name{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--blue-deep);}
+.brand-sub{font-size:9px;color:var(--muted);font-weight:600;letter-spacing:0.5px;text-transform:uppercase;}
+
+.nav-links{display:flex;align-items:center;gap:2px;}
+.nav-link{
+  padding:6px 10px;border-radius:16px;font-size:11.5px;font-weight:700;
+  color:var(--muted);cursor:pointer;border:none;background:none;
+  font-family:'Nunito',sans-serif;transition:all 0.18s;white-space:nowrap;
+}
+.nav-link:active{color:var(--blue);background:rgba(33,118,199,0.1);}
+
+.notif-btn{
+  width:34px;height:34px;border-radius:50%;background:var(--white);
+  border:1.5px solid var(--card-border);display:flex;align-items:center;
+  justify-content:center;font-size:15px;box-shadow:var(--shadow-sm);
+  cursor:pointer;position:relative;flex-shrink:0;
+}
+.notif-dot{position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid white;display:none;}
+
+/* ── MAIN ── */
+.main{padding-top:calc(54px + var(--safe-top));padding-bottom:calc(16px + var(--safe-bot));}
+
+/* ── HERO ── */
+.hero-banner{
+  background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue) 55%,var(--teal) 100%);
+  padding:22px 20px 24px;
+  position:relative;overflow:hidden;
+}
+.hero-banner::before{content:'';position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,0.05);top:-80px;right:-60px;}
+.hero-banner::after{content:'';position:absolute;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.04);bottom:-50px;left:30%;}
+
+.hero-top-row{display:flex;align-items:center;gap:16px;margin-bottom:16px;position:relative;z-index:1;}
+
+/* BLUE CROSS ICON — hero */
+.hero-cross{
+  width:64px;height:64px;border-radius:18px;
+  background:rgba(255,255,255,0.16);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(0,0,0,0.18);flex-shrink:0;
+}
+.hero-cross svg{width:36px;height:36px;}
+
+.hero-text{color:white;flex:1;}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;opacity:0.6;margin-bottom:4px;}
+.hero-title{font-family:'Fraunces',serif;font-size:22px;font-weight:600;line-height:1.2;margin-bottom:3px;}
+.hero-desc{font-size:11.5px;opacity:0.72;line-height:1.5;}
+
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:relative;z-index:1;margin-bottom:14px;}
+.hero-stat{background:rgba(255,255,255,0.12);border-radius:12px;padding:9px 6px;text-align:center;backdrop-filter:blur(6px);}
+.hero-stat-val{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:white;}
+.hero-stat-lbl{font-size:8.5px;opacity:0.6;letter-spacing:0.4px;text-transform:uppercase;margin-top:1px;color:white;}
+
+.heal-row{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
+.heal-bar-wrap{flex:1;}
+.heal-lbl{font-size:10px;opacity:0.7;margin-bottom:5px;color:white;}
+.heal-bar{height:7px;background:rgba(255,255,255,0.18);border-radius:4px;overflow:hidden;}
+.heal-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#27b5c2,#7ff0d0);transition:width 1.2s ease;}
+.heal-pct{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:white;white-space:nowrap;}
+
+/* ── CONTENT ── */
+.content-area{padding:16px 14px 20px;}
+.section-block{margin-bottom:22px;}
+.sec-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.sec-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.sec-title{font-family:'Fraunces',serif;font-size:17px;color:var(--blue-deep);}
+.sec-sub{font-size:10.5px;color:var(--muted);font-weight:600;margin-top:0px;}
+
+/* SIM */
+.sim-strip{background:var(--white);border:1.5px solid var(--card-border);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow-sm);margin-bottom:18px;}
+.sim-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;}
+.sim-btns{display:flex;gap:7px;flex-wrap:wrap;}
+.sim-btn{border:1.5px solid var(--card-border);border-radius:20px;padding:7px 13px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.18s;background:var(--white);color:var(--text);}
+.sim-btn:active{background:var(--sky);}
+.sim-btn.active-sim{background:var(--blue);color:white;border-color:var(--blue);}
+
+/* ALERT BANNER */
+.alert-banner{background:linear-gradient(135deg,#fff2f2,#ffe0e0);border:1.5px solid rgba(232,69,69,0.25);border-radius:14px;padding:12px 14px;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(232,69,69,0.12);display:none;margin-bottom:16px;}
+.alert-banner.visible{display:flex;}
+.alert-text{flex:1;}
+.alert-title{font-size:13px;font-weight:800;color:#9b2121;}
+.alert-desc{font-size:11px;color:#c05050;margin-top:2px;line-height:1.4;}
+.alert-close{font-size:18px;cursor:pointer;opacity:0.5;flex-shrink:0;}
+
+/* VITALS */
+.vitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.vital-card{background:var(--white);border:1.5px solid var(--card-border);border-radius:18px;padding:14px;box-shadow:var(--shadow-sm);}
+.vital-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.vital-icon{font-size:20px;}
+.vital-badge{font-size:8.5px;font-weight:700;letter-spacing:0.4px;padding:3px 8px;border-radius:20px;}
+.badge-ok{background:rgba(40,191,130,0.12);color:#1a7a50;}
+.badge-warn{background:rgba(240,165,0,0.14);color:#8a5e00;}
+.badge-alert{background:rgba(232,69,69,0.12);color:#9b2121;}
+.vital-val{font-family:'Fraunces',serif;font-size:30px;font-weight:600;color:var(--text);line-height:1;}
+.vital-unit{font-size:10px;color:var(--muted);font-weight:600;margin-top:1px;}
+.vital-name{font-size:10px;font-weight:700;color:var(--muted);margin-top:8px;text-transform:uppercase;letter-spacing:0.7px;}
+.vital-mini-bar{height:3px;border-radius:2px;background:var(--sky2);margin-top:6px;overflow:hidden;}
+.vital-mini-fill{height:100%;border-radius:2px;transition:width 1s ease;}
+.vital-note{font-size:9.5px;color:var(--muted);margin-top:5px;line-height:1.35;}
+
+/* FEATURES */
+.features-list{display:flex;flex-direction:column;gap:8px;}
+.feature-card{background:var(--white);border:1.5px solid var(--card-border);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);}
+.feature-icon-wrap{width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.fi-blue{background:rgba(33,118,199,0.1);}
+.fi-teal{background:rgba(39,181,194,0.1);}
+.fi-green{background:rgba(40,191,130,0.1);}
+.fi-amber{background:rgba(240,165,0,0.1);}
+.fi-red{background:rgba(232,69,69,0.1);}
+.feature-info{flex:1;min-width:0;}
+.feature-name{font-size:13px;font-weight:700;color:var(--text);}
+.feature-desc{font-size:10.5px;color:var(--muted);margin-top:1px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.feature-toggle{width:44px;height:24px;border-radius:12px;flex-shrink:0;position:relative;cursor:pointer;transition:background 0.3s;border:none;outline:none;}
+.feature-toggle.on{background:var(--green);}
+.feature-toggle.off{background:#d0dce8;}
+.feature-toggle.adj{background:var(--amber);}
+.toggle-knob{position:absolute;width:18px;height:18px;border-radius:50%;background:white;top:3px;transition:left 0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.18);}
+.feature-toggle.on .toggle-knob{left:23px;}
+.feature-toggle.off .toggle-knob{left:3px;}
+.feature-toggle.adj .toggle-knob{left:23px;}
+
+/* TIMELINE */
+.timeline-card{background:var(--white);border:1.5px solid var(--card-border);border-radius:18px;padding:16px 14px;box-shadow:var(--shadow-sm);}
+.timeline-card h3{font-family:'Fraunces',serif;font-size:16px;color:var(--blue-deep);margin-bottom:16px;}
+.tl-steps{display:flex;align-items:flex-start;position:relative;}
+.tl-line{position:absolute;top:12px;left:12px;right:12px;height:2px;background:var(--sky2);z-index:0;}
+.tl-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;z-index:1;}
+.tl-dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--sky2);background:var(--white);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--muted);transition:all 0.4s;}
+.tl-dot.done{border-color:var(--green);background:var(--green);color:white;}
+.tl-dot.now{border-color:var(--blue);background:var(--blue);color:white;animation:glow 2s infinite;}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(33,118,199,0.4);}50%{box-shadow:0 0 0 5px rgba(33,118,199,0);}}
+.tl-lbl{font-size:8.5px;font-weight:700;text-align:center;color:var(--muted);line-height:1.25;}
+.tl-lbl.active{color:var(--blue-deep);}
+.tl-hrs{font-size:8px;color:var(--blue-soft);font-weight:600;}
+.discharge-note{font-size:11.5px;color:var(--muted);margin-top:14px;text-align:center;}
+.discharge-note strong{color:var(--blue-deep);}
+
+/* HAPTIC + TIP */
+.haptic-card{background:var(--white);border:1.5px solid var(--card-border);border-radius:18px;padding:16px;box-shadow:var(--shadow-sm);display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;}
+.haptic-waves{display:flex;align-items:center;gap:2px;margin-top:8px;}
+.hwave{width:2.5px;border-radius:2px;background:var(--blue-soft);animation:hwanim 1.3s ease-in-out infinite;}
+@keyframes hwanim{0%,100%{height:4px;opacity:0.3;}50%{height:18px;opacity:1;}}
+.hwave:nth-child(1){animation-delay:0s}.hwave:nth-child(2){animation-delay:.1s}.hwave:nth-child(3){animation-delay:.2s}.hwave:nth-child(4){animation-delay:.3s}.hwave:nth-child(5){animation-delay:.4s}.hwave:nth-child(6){animation-delay:.3s}.hwave:nth-child(7){animation-delay:.2s}.hwave:nth-child(8){animation-delay:.1s}
+.haptic-info{flex:1;}
+.haptic-title{font-size:13px;font-weight:700;color:var(--text);}
+.haptic-msg{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5;}
+.tip-card{background:linear-gradient(135deg,#f0f8ff,#e2f3fc);border:1.5px solid rgba(33,118,199,0.15);border-radius:18px;padding:16px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--shadow-sm);}
+.tip-icon{font-size:26px;flex-shrink:0;}
+.tip-title{font-size:13px;font-weight:800;color:var(--blue-deep);margin-bottom:4px;}
+.tip-text{font-size:11px;color:var(--muted);line-height:1.55;}
+
+/* ── MODAL OVERLAY ── */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(14,36,64,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;padding-bottom:var(--safe-bot);}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  background:var(--white);border-radius:24px 24px 0 0;
+  padding:20px 20px calc(20px + var(--safe-bot));
+  width:100%;max-height:88dvh;overflow-y:auto;
+  box-shadow:0 -8px 40px rgba(14,36,64,0.2);
+  position:relative;animation:sheetUp 0.3s ease;
+}
+@keyframes sheetUp{from{transform:translateY(60px);opacity:0;}to{transform:none;opacity:1;}}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:#d0dce8;margin:0 auto 16px;}
+.modal-close{position:absolute;top:16px;right:16px;font-size:20px;cursor:pointer;opacity:0.35;background:none;border:none;line-height:1;}
+.modal-icon{font-size:30px;margin-bottom:8px;}
+.modal-title{font-family:'Fraunces',serif;font-size:20px;color:var(--blue-deep);margin-bottom:3px;}
+.modal-sub{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:16px;}
+.modal-body{font-size:13px;color:var(--text);line-height:1.6;}
+.modal-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--sky2);}
+.modal-row:last-child{border-bottom:none;}
+.modal-row-label{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;}
+.modal-row-val{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--text);}
+.modal-row-badge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.modal-btn{margin-top:20px;width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--teal));color:white;border:none;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;}
+.modal-btn:active{opacity:0.85;}
+
+/* NURSE MODAL */
+.nurse-modal-overlay{position:fixed;inset:0;z-index:600;background:rgba(14,36,64,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;padding-bottom:var(--safe-bot);}
+.nurse-modal-overlay.open{display:flex;}
+.nurse-modal-box{background:var(--white);border-radius:24px 24px 0 0;padding:20px 24px calc(24px + var(--safe-bot));width:100%;text-align:center;box-shadow:0 -8px 40px rgba(14,36,64,0.22);animation:sheetUp 0.3s ease;}
+.nurse-handle{width:36px;height:4px;border-radius:2px;background:#d0dce8;margin:0 auto 18px;}
+.nurse-icon{font-size:44px;margin-bottom:10px;}
+.nurse-title{font-family:'Fraunces',serif;font-size:19px;color:var(--blue-deep);margin-bottom:8px;}
+.nurse-msg{font-size:13px;color:var(--text);line-height:1.65;margin-bottom:6px;}
+.nurse-emg{font-size:11.5px;color:var(--red);font-weight:700;margin-top:10px;padding:11px 14px;background:rgba(232,69,69,0.07);border-radius:12px;line-height:1.5;}
+.nurse-btn{margin-top:18px;width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--teal));color:white;border:none;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;}
+.nurse-btn:active{opacity:0.85;}
+
+.fade-in{opacity:0;animation:fadeUp 0.45s ease forwards;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+<div class="bg-wrap">
+  <div class="bg-circle a"></div>
+  <div class="bg-circle b"></div>
+  <div class="bg-circle c"></div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-inner">
+      <div class="nav-brand">
+        <div class="cross-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="3" width="4" height="18" rx="2" fill="white"/>
+            <rect x="3" y="10" width="18" height="4" rx="2" fill="white"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-name">AutoHeal Bandage Pro</div>
+          <div class="brand-sub">Smart Wound Care</div>
+        </div>
+      </div>
+      <div class="nav-links">
+        <button class="nav-link" onclick="openNavModal('vitals')">Vitals</button>
+        <button class="nav-link" onclick="openNavModal('features')">Features</button>
+        <button class="nav-link" onclick="openNavModal('timeline')">Timeline</button>
+        <button class="nav-link" onclick="openNavModal('messages')">Messages</button>
+      </div>
+      <div class="notif-btn" onclick="toggleAlert()">🔔<div class="notif-dot" id="notifDot"></div></div>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <!-- HERO -->
+    <div class="hero-banner">
+      <div class="hero-top-row">
+        <div class="hero-cross">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="2" width="4" height="20" rx="2" fill="white"/>
+            <rect x="2" y="10" width="20" height="4" rx="2" fill="white"/>
+          </svg>
+        </div>
+        <div class="hero-text">
+          <div class="hero-eyebrow">Good morning, Alex 👋</div>
+          <div class="hero-title" id="heroStatus">Healing Well</div>
+          <div class="hero-desc" id="heroSub">No intervention needed · AutoHeal managing autonomously</div>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-val" id="h-temp">36.8°</div><div class="hero-stat-lbl">Temp °C</div></div>
+        <div class="hero-stat"><div class="hero-stat-val" id="h-ph">7.4</div><div class="hero-stat-lbl">pH Level</div></div>
+        <div class="hero-stat"><div class="hero-stat-val">18h</div><div class="hero-stat-lbl">Active</div></div>
+      </div>
+      <div class="heal-row">
+        <div class="heal-bar-wrap">
+          <div class="heal-lbl">Healing Progress</div>
+          <div class="heal-bar"><div class="heal-fill" id="healFill" style="width:38%"></div></div>
+        </div>
+        <div class="heal-pct" id="healPct">38%</div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content-area">
+
+      <!-- ALERT BANNER -->
+      <div class="alert-banner" id="alertBanner">
+        <span style="font-size:22px">🚨</span>
+        <div class="alert-text">
+          <div class="alert-title" id="alertTitle">Infection Risk Detected</div>
+          <div class="alert-desc" id="alertDesc">Elevated pH and temperature detected. Antibiotic release triggered. Contact your physician.</div>
+        </div>
+        <span class="alert-close" onclick="closeAlert()">✕</span>
+      </div>
+
+      <!-- SIMULATE -->
+      <div class="sim-strip fade-in" style="animation-delay:0.05s">
+        <div class="sim-label">Simulate Condition</div>
+        <div class="sim-btns">
+          <button class="sim-btn active-sim" onclick="simulate('normal',this)">✅ Normal</button>
+          <button class="sim-btn" onclick="simulate('infection',this)">🦠 Infection</button>
+          <button class="sim-btn" onclick="simulate('swelling',this)">↑ Swelling</button>
+        </div>
+      </div>
+
+      <!-- VITALS -->
+      <div id="vitals" class="section-block fade-in" style="animation-delay:0.1s">
+        <div class="sec-header">
+          <div class="sec-icon">📊</div>
+          <div>
+            <div class="sec-title">Live Sensor Readings</div>
+            <div class="sec-sub">Updated every 30 seconds</div>
+          </div>
+        </div>
+        <div class="vitals-grid">
+          <div class="vital-card">
+            <div class="vital-top"><div class="vital-icon">🌡️</div><div class="vital-badge badge-ok" id="badge-temp">Normal</div></div>
+            <div class="vital-val" id="vv-temp">36.8</div><div class="vital-unit">°C</div>
+            <div class="vital-mini-bar"><div class="vital-mini-fill" id="vbar-temp" style="width:55%;background:var(--green)"></div></div>
+            <div class="vital-name">Temperature</div>
+            <div class="vital-note" id="vnote-temp">Within normal range</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-top"><div class="vital-icon">💧</div><div class="vital-badge badge-ok" id="badge-moist">Optimal</div></div>
+            <div class="vital-val" id="vv-moist">42</div><div class="vital-unit">% Humidity</div>
+            <div class="vital-mini-bar"><div class="vital-mini-fill" id="vbar-moist" style="width:42%;background:var(--blue)"></div></div>
+            <div class="vital-name">Moisture</div>
+            <div class="vital-note" id="vnote-moist">Promotes healing</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-top"><div class="vital-icon">🔬</div><div class="vital-badge badge-ok" id="badge-ph">Neutral</div></div>
+            <div class="vital-val" id="vv-ph">7.4</div><div class="vital-unit">pH units</div>
+            <div class="vital-mini-bar"><div class="vital-mini-fill" id="vbar-ph" style="width:74%;background:var(--green)"></div></div>
+            <div class="vital-name">pH Level</div>
+            <div class="vital-note" id="vnote-ph">No infection markers</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-top"><div class="vital-icon">⚡</div><div class="vital-badge badge-ok" id="badge-strain">Low</div></div>
+            <div class="vital-val" id="vv-strain">0.12</div><div class="vital-unit">ε microstrain</div>
+            <div class="vital-mini-bar"><div class="vital-mini-fill" id="vbar-strain" style="width:20%;background:var(--green)"></div></div>
+            <div class="vital-name">Tissue Strain</div>
+            <div class="vital-note" id="vnote-strain">No swelling</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURES -->
+      <div id="features" class="section-block fade-in" style="animation-delay:0.13s">
+        <div class="sec-header">
+          <div class="sec-icon">⚙️</div>
+          <div>
+            <div class="sec-title">Bandage Features</div>
+            <div class="sec-sub">Tap a toggle to request nurse</div>
+          </div>
+        </div>
+        <div class="features-list" id="featuresList"></div>
+      </div>
+
+      <!-- TIMELINE -->
+      <div id="timeline" class="section-block fade-in" style="animation-delay:0.16s">
+        <div class="sec-header">
+          <div class="sec-icon">🗓️</div>
+          <div>
+            <div class="sec-title">Recovery Journey</div>
+            <div class="sec-sub">Your projected healing timeline</div>
+          </div>
+        </div>
+        <div class="timeline-card">
+          <div class="tl-steps" id="tlSteps"><div class="tl-line"></div></div>
+          <div class="discharge-note" id="dischargeNote">Estimated recovery: <strong>Day 6–7</strong></div>
+        </div>
+      </div>
+
+      <!-- MESSAGES -->
+      <div id="messages" class="section-block fade-in" style="animation-delay:0.19s">
+        <div class="sec-header">
+          <div class="sec-icon">💬</div>
+          <div>
+            <div class="sec-title">Alerts & Care Tips</div>
+            <div class="sec-sub">Haptic status and guidance</div>
+          </div>
+        </div>
+        <div class="haptic-card">
+          <div style="font-size:26px;flex-shrink:0">📳</div>
+          <div class="haptic-info">
+            <div class="haptic-title">Haptic Feedback</div>
+            <div class="haptic-msg" id="hapticMsg">Gentle pulse every 4 hours confirms normal healing.</div>
+            <div class="haptic-waves">
+              <div class="hwave"></div><div class="hwave"></div><div class="hwave"></div><div class="hwave"></div>
+              <div class="hwave"></div><div class="hwave"></div><div class="hwave"></div><div class="hwave"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">💡</div>
+          <div>
+            <div class="tip-title">Today's Care Tip</div>
+            <div class="tip-text" id="tipText">Keep your bandage dry when showering. AutoHeal's moisture sensor will alert you if water penetrates the seal.</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+  </div><!-- /main -->
+</div><!-- /page-wrap -->
+
+<!-- NAV MODAL (bottom sheet) -->
+<div class="modal-overlay" id="navModal" onclick="closeNavModal(event)">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeNavModal(null,true)">✕</button>
+    <div class="modal-icon" id="mIcon"></div>
+    <div class="modal-title" id="mTitle"></div>
+    <div class="modal-sub" id="mSub"></div>
+    <div class="modal-body" id="mBody"></div>
+    <button class="modal-btn" onclick="closeNavModal(null,true)">Got it</button>
+  </div>
+</div>
+
+<!-- NURSE MODAL (bottom sheet) -->
+<div class="nurse-modal-overlay" id="nurseModal" onclick="closeNurseModal(event)">
+  <div class="nurse-modal-box">
+    <div class="nurse-handle"></div>
+    <div class="nurse-icon">🏥</div>
+    <div class="nurse-title">Request Sent to Nurse</div>
+    <div class="nurse-msg">Your nurse has been notified and will attend to your bandage shortly. Please remain calm and stay in your current position.</div>
+    <div class="nurse-emg">⚠️ In the event of an emergency, press and hold on the switch to manually turn it on and call 911.</div>
+    <button class="nurse-btn" onclick="closeNurseModal(null,true)">Understood</button>
+  </div>
+</div>
+
+<script>
+const STATES={
+  normal:{
+    alert:false,
+    hero:{status:"Healing Well",sub:"No intervention needed · AutoHeal managing autonomously",temp:"36.8°",ph:"7.4",pct:38},
+    sensors:{
+      temp:  {v:"36.8",bar:55,color:"var(--green)",badge:"Normal",  bcls:"badge-ok",   note:"Within normal range"},
+      moist: {v:"42",  bar:42,color:"var(--blue)", badge:"Optimal", bcls:"badge-ok",   note:"Promotes healing"},
+      ph:    {v:"7.4", bar:74,color:"var(--green)",badge:"Neutral", bcls:"badge-ok",   note:"No infection markers"},
+      strain:{v:"0.12",bar:20,color:"var(--green)",badge:"Low",     bcls:"badge-ok",   note:"No swelling"},
+    },
+    features:[
+      {icon:"🧴",bg:"fi-blue", name:"Drug Release", desc:"Antibiotics & growth factors on standby",   state:"off"},
+      {icon:"🔵",bg:"fi-teal", name:"Compression",  desc:"Active at 12 mmHg for venous support",      state:"on"},
+      {icon:"✨",bg:"fi-green",name:"Sterilization",desc:"UV-C emitter on standby",                   state:"off"},
+      {icon:"📡",bg:"fi-blue", name:"EMR Sync",     desc:"Syncing vitals to your care team",          state:"on"},
+      {icon:"🧠",bg:"fi-teal", name:"AI Monitoring",desc:"Analyzing patterns every 30 seconds",       state:"on"},
+    ],
+    haptic:"Gentle pulse every 4 hours confirms normal healing — no action needed from you.",
+    tl:2,discharge:"Day 6–7",
+    tip:"Keep your bandage dry when showering. AutoHeal's moisture sensor will alert you if water penetrates the seal. Light activity is fine — the strain sensor will detect any excess stress.",
+  },
+  infection:{
+    alert:true,
+    alertTitle:"⚠️ Infection Risk Detected",
+    alertDesc:"Elevated pH and temperature detected. Antibiotic release triggered. Please contact your physician.",
+    hero:{status:"⚠ Infection Risk",sub:"Antibiotics released · UV-C active · Notify your doctor",temp:"38.9°",ph:"8.1",pct:22},
+    sensors:{
+      temp:  {v:"38.9",bar:85,color:"var(--red)",  badge:"Elevated",bcls:"badge-alert",note:"Fever response — infection likely"},
+      moist: {v:"78",  bar:78,color:"var(--amber)",badge:"High",    bcls:"badge-warn", note:"Excess exudate detected"},
+      ph:    {v:"8.1", bar:88,color:"var(--red)",  badge:"Alkaline",bcls:"badge-alert",note:"Infection biomarker — action taken"},
+      strain:{v:"0.18",bar:28,color:"var(--green)",badge:"Moderate",bcls:"badge-ok",   note:"Strain within range"},
+    },
+    features:[
+      {icon:"🧴",bg:"fi-red",  name:"Drug Release", desc:"Antibiotic release ACTIVE",                state:"on"},
+      {icon:"🔵",bg:"fi-teal", name:"Compression",  desc:"Active at 12 mmHg",                        state:"on"},
+      {icon:"✨",bg:"fi-amber",name:"Sterilization",desc:"UV-C pulse ACTIVE — 3 min cycle",           state:"adj"},
+      {icon:"📡",bg:"fi-blue", name:"EMR Sync",     desc:"Alert dispatched to your physician",        state:"on"},
+      {icon:"🧠",bg:"fi-teal", name:"AI Monitoring",desc:"High-alert — scanning every 10 seconds",    state:"on"},
+    ],
+    haptic:"🚨 Rapid alert burst sent. Your care team has been notified. Call your physician.",
+    tl:1,discharge:"Day 9–11 (revised)",
+    tip:"Do not remove the bandage. AutoHeal is actively fighting the infection. Stay calm, rest, and contact your physician.",
+  },
+  swelling:{
+    alert:false,
+    hero:{status:"Swelling Detected",sub:"Compression increased to 24 mmHg · No infection signs",temp:"37.2°",ph:"7.2",pct:30},
+    sensors:{
+      temp:  {v:"37.2",bar:58,color:"var(--green)",badge:"Normal",  bcls:"badge-ok",    note:"Normal inflammation"},
+      moist: {v:"55",  bar:55,color:"var(--blue)", badge:"Moderate",bcls:"badge-ok",    note:"Within acceptable range"},
+      ph:    {v:"7.2", bar:72,color:"var(--green)",badge:"Neutral", bcls:"badge-ok",    note:"No infection markers"},
+      strain:{v:"0.61",bar:75,color:"var(--red)",  badge:"High",    bcls:"badge-alert", note:"Significant swelling"},
+    },
+    features:[
+      {icon:"🧴",bg:"fi-blue", name:"Drug Release", desc:"Anti-inflammatory agents released",         state:"adj"},
+      {icon:"🔵",bg:"fi-amber",name:"Compression",  desc:"ADJUSTED to 24 mmHg — reducing edema",      state:"adj"},
+      {icon:"✨",bg:"fi-green",name:"Sterilization",desc:"UV-C emitter on standby",                    state:"off"},
+      {icon:"📡",bg:"fi-blue", name:"EMR Sync",     desc:"Swelling data sent to care team",            state:"on"},
+      {icon:"🧠",bg:"fi-teal", name:"AI Monitoring",desc:"Tracking strain every 30 seconds",           state:"on"},
+    ],
+    haptic:"Rhythmic compression feedback — you'll feel the bandage gently tightening. This is normal.",
+    tl:2,discharge:"Day 7–8 (minor delay)",
+    tip:"Elevate your wound above your heart when resting. Avoid standing for long periods. The strain sensor tracks improvement in real time.",
+  }
+};
+
+const TL=[
+  {label:"Wound\nApplied",     hrs:"0h"},
+  {label:"Inflammation\nPhase",hrs:"6–24h"},
+  {label:"Rebuilding\nTissue", hrs:"1–3 days"},
+  {label:"Strengthening",      hrs:"3–5 days"},
+  {label:"Full\nRecovery",     hrs:"~Day 7"},
+];
+
+let currentSim='normal';
+
+function buildTimeline(cur){
+  const w=document.getElementById('tlSteps');
+  w.innerHTML='<div class="tl-line"></div>';
+  TL.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='tl-step';
+    const cls=i<cur?'done':i===cur?'now':'';
+    d.innerHTML=`<div class="tl-dot ${cls}">${i<cur?'✓':i+1}</div><div class="tl-lbl ${i===cur?'active':''}">${s.label.replace('\n','<br>')}</div><div class="tl-hrs">${s.hrs}</div>`;
+    w.appendChild(d);
+  });
+}
+
+function buildFeatures(list){
+  const wrap=document.getElementById('featuresList');
+  wrap.innerHTML='';
+  list.forEach(f=>{
+    const row=document.createElement('div');row.className='feature-card';
+    row.innerHTML=`
+      <div class="feature-icon-wrap ${f.bg}">${f.icon}</div>
+      <div class="feature-info">
+        <div class="feature-name">${f.name}</div>
+        <div class="feature-desc">${f.desc}</div>
+      </div>
+      <button class="feature-toggle ${f.state}" onclick="openNurseModal()">
+        <div class="toggle-knob"></div>
+      </button>`;
+    wrap.appendChild(row);
+  });
+}
+
+function applyState(key){
+  const S=STATES[key];
+  const banner=document.getElementById('alertBanner');
+  if(S.alert){
+    document.getElementById('alertTitle').textContent=S.alertTitle;
+    document.getElementById('alertDesc').textContent=S.alertDesc;
+    banner.classList.add('visible');
+    document.getElementById('notifDot').style.display='block';
+  } else {
+    banner.classList.remove('visible');
+    document.getElementById('notifDot').style.display='none';
+  }
+  document.getElementById('heroStatus').textContent=S.hero.status;
+  document.getElementById('heroSub').textContent=S.hero.sub;
+  document.getElementById('h-temp').textContent=S.hero.temp;
+  document.getElementById('h-ph').textContent=S.hero.ph;
+  document.getElementById('healFill').style.width=S.hero.pct+'%';
+  document.getElementById('healPct').textContent=S.hero.pct+'%';
+  ['temp','moist','ph','strain'].forEach(k=>{
+    const d=S.sensors[k];
+    document.getElementById('vv-'+k).textContent=d.v;
+    document.getElementById('vbar-'+k).style.width=d.bar+'%';
+    document.getElementById('vbar-'+k).style.background=d.color;
+    const b=document.getElementById('badge-'+k);
+    b.textContent=d.badge;b.className='vital-badge '+d.bcls;
+    document.getElementById('vnote-'+k).textContent=d.note;
+  });
+  buildFeatures(S.features);
+  document.getElementById('hapticMsg').textContent=S.haptic;
+  buildTimeline(S.tl);
+  document.getElementById('dischargeNote').innerHTML=`Estimated recovery: <strong>${S.discharge}</strong>`;
+  document.getElementById('tipText').textContent=S.tip;
+}
+
+function simulate(key,btn){
+  currentSim=key;
+  document.querySelectorAll('.sim-btn').forEach(b=>b.classList.remove('active-sim'));
+  if(btn)btn.classList.add('active-sim');
+  applyState(key);
+}
+
+function toggleAlert(){if(currentSim==='infection')document.getElementById('alertBanner').classList.toggle('visible');}
+function closeAlert(){document.getElementById('alertBanner').classList.remove('visible');}
+
+function openNurseModal(){
+  document.getElementById('nurseModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeNurseModal(e,force){
+  if(force||(e&&e.target===document.getElementById('nurseModal'))){
+    document.getElementById('nurseModal').classList.remove('open');
+    document.body.style.overflow='';
+  }
+}
+
+function openNavModal(section){
+  const S=STATES[currentSim];
+  let icon,title,sub,body='';
+  if(section==='vitals'){
+    icon='📊';title='Live Sensor Readings';sub='Current readings from your bandage';
+    const s=S.sensors;
+    body=`
+      <div class="modal-row"><div><div class="modal-row-label">🌡️ Temperature</div><div style="font-size:10.5px;color:var(--muted);margin-top:2px">${s.temp.note}</div></div><div style="text-align:right"><div class="modal-row-val">${s.temp.v}°C</div><span class="modal-row-badge ${s.temp.bcls}">${s.temp.badge}</span></div></div>
+      <div class="modal-row"><div><div class="modal-row-label">💧 Moisture</div><div style="font-size:10.5px;color:var(--muted);margin-top:2px">${s.moist.note}</div></div><div style="text-align:right"><div class="modal-row-val">${s.moist.v}%</div><span class="modal-row-badge ${s.moist.bcls}">${s.moist.badge}</span></div></div>
+      <div class="modal-row"><div><div class="modal-row-label">🔬 pH Level</div><div style="font-size:10.5px;color:var(--muted);margin-top:2px">${s.ph.note}</div></div><div style="text-align:right"><div class="modal-row-val">${s.ph.v}</div><span class="modal-row-badge ${s.ph.bcls}">${s.ph.badge}</span></div></div>
+      <div class="modal-row"><div><div class="modal-row-label">⚡ Tissue Strain</div><div style="font-size:10.5px;color:var(--muted);margin-top:2px">${s.strain.note}</div></div><div style="text-align:right"><div class="modal-row-val">${s.strain.v}ε</div><span class="modal-row-badge ${s.strain.bcls}">${s.strain.badge}</span></div></div>`;
+  } else if(section==='features'){
+    icon='⚙️';title='Bandage Features';sub='Current status of all autonomous systems';
+    const lbl={on:'🟢 Active',off:'⚪ Standby',adj:'🟡 Adjusted'};
+    body=S.features.map(f=>`<div class="modal-row"><div><div class="modal-row-label">${f.icon} ${f.name}</div><div style="font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.35">${f.desc}</div></div><div style="font-size:11.5px;font-weight:700;color:var(--text);white-space:nowrap;margin-left:10px">${lbl[f.state]||f.state}</div></div>`).join('');
+  } else if(section==='timeline'){
+    icon='🗓️';title='Recovery Timeline';sub='Your projected healing journey';
+    const lbs=["Wound Applied","Inflammation Phase","Rebuilding Tissue","Strengthening","Full Recovery"];
+    const hrs=["0h","6–24h","1–3 days","3–5 days","~Day 7"];
+    body=lbs.map((l,i)=>{const d=i<S.tl,n=i===S.tl;return`<div class="modal-row"><div style="${n?'font-weight:800;color:var(--blue-deep)':''}">${d?'✅':n?'🔵':'⬜'} ${l}</div><div style="font-size:10.5px;color:var(--muted)">${hrs[i]}</div></div>`;}).join('')+`<div style="margin-top:14px;padding:11px 13px;background:var(--sky);border-radius:12px;font-size:12.5px;color:var(--blue-deep);font-weight:700;text-align:center">Projected discharge: ${S.discharge}</div>`;
+  } else if(section==='messages'){
+    icon='💬';title='Alerts & Care Tips';sub='Haptic feedback and your care guidance';
+    body=`<div class="modal-row" style="align-items:flex-start"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;padding-top:2px">📳 Haptic Status</div><div style="font-size:12.5px;color:var(--text);line-height:1.5;max-width:220px;text-align:right">${S.haptic}</div></div><div style="margin-top:12px;padding:13px;background:linear-gradient(135deg,#f0f8ff,#e2f3fc);border-radius:14px;"><div style="font-size:10.5px;font-weight:800;color:var(--blue-deep);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:7px">💡 Today's Care Tip</div><div style="font-size:12.5px;color:var(--text);line-height:1.55">${S.tip}</div></div>`;
+  }
+  document.getElementById('mIcon').textContent=icon;
+  document.getElementById('mTitle').textContent=title;
+  document.getElementById('mSub').textContent=sub;
+  document.getElementById('mBody').innerHTML=body;
+  document.getElementById('navModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeNavModal(e,force){
+  if(force||(e&&e.target===document.getElementById('navModal'))){
+    document.getElementById('navModal').classList.remove('open');
+    document.body.style.overflow='';
+  }
+}
+
+applyState('normal');
+</script>
+</body>
+</html>
